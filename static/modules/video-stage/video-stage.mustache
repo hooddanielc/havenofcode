@@ -1,0 +1,11 @@
+<div class="video-stage">
+  <video 
+    {{#autoplay}} autoplay {{/autoplay}}
+    {{#loop}} loop {{/loop}}
+  >
+    <source src="{{mp4_url}}" type="video/mp4">
+    <source src="{{webm_url}}" type="video/webm">
+    <source src="{{ogg_url}}" type="video/ogg">
+    <h1>error, browser does not support html5 video</h1>
+  </video>
+</div>
