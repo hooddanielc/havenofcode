@@ -1,63 +1,39 @@
 app.modules.PageBaseView = Backbone.View.extend({
   events: {
     'click .fb-login': 'login',
-    'click .fb-logout': 'setLoggedOut',
+    'click .fb-logout': 'logout',
     'click .profile-dropdown': 'openDropdown'
   },
-  login: function() {
-    FB.login();
+  login: function(e) {
+    e.preventDefault();
+    window.location = '/oauth_login.php';
   },
-  setLoggedIn: function() {
+  logout: function(e) {
+    e.preventDefault();
+    window.location = '/logout.php';
+  },
+  setLoggedIn: function(user) {
     var self = this;
-    FB.api('/me', function(response) {
-      self.$el.find('.profile-dropdown img').attr('src', 'http://graph.facebook.com/' + response.id + '/picture');
-      self.$el.find('.log-out-wrap').show();
-      self.$el.find('.log-in-wrap').hide();
-      self.model.set('user', response);
-    });
-  },
-  setLoggedOut: function() {
-    FB.logout();
-    this.$el.find('.log-out-wrap').hide();
-    this.$el.find('.log-in-wrap').show();
-    this.model.set('user', undefined);
+    var me = this.model.get('user');
+    self.$el.find('.profile-dropdown img').attr('src', me.avatar_url);
+    self.$el.find('.log-out-wrap').show();
+    self.$el.find('.log-in-wrap').hide();
   },
   openDropdown: function(e) {
     e.preventDefault();
     console.log('opening dropdown');
   },
-  initFacebookSDK: function() {
-    var self = this;
-    window.fbAsyncInit = function() {
-      FB.init({
-        appId : '226946073983769',
-        status : true, // check login status
-        cookie : true, // enable cookies to allow the server to access the session
-        xfbml : false  // parse XFBML
-      });
-      FB.Event.subscribe('auth.authResponseChange', function(response) {
-        if (response.status === 'connected') {
-          self.setLoggedIn();
-        } else if (response.status === 'not_authorized') {
-          self.setLoggedOut();
-        } else {
-          self.setLoggedOut();
-        }
-      });
-    };
-
-    (function(d){
-     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement('script'); js.id = id; js.async = true;
-     js.src = "//connect.facebook.net/en_US/all.js";
-     ref.parentNode.insertBefore(js, ref);
-    }(document));
-  },
   render: function() {
-    this.initFacebookSDK();
+    window.the_page = this;
+
     this.el.innerHTML += app.mustache['page-base'];
     this.renderPage();
+
+    // check user data
+    if(app.data.user) {
+      this.model.set('user', app.data.user);
+      this.setLoggedIn(app.data.user);
+    }
 
     // initialize resize event
     var self = this;

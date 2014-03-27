@@ -1,5 +1,7 @@
 <?php
 
+  include 'config.php';
+
   class Module {
     // override to put mustache static text onto page
     public static $text = [];
@@ -89,12 +91,24 @@
   }
 
   class Page extends Module {
+    protected $data = [];
+    protected function isTokenValid($token) {
+      ini_set('user_agent','Mozilla/4.0 (compatible; MSIE 6.0)');
+      $result = file_get_contents('https://api.github.com/user?access_token='.$token);
+      $json = json_decode($result);
+      return $json;
+    }
 
-    /*
-    * override to put json data in app.data var
-    * * * */
-    public function getData() {
-      return NULL;
+    function __construct() {
+      $this->data = [];
+      session_start();
+      // check to see if token still valid
+      if(isset($_SESSION['access_token'])) {
+        $user_data = $this->isTokenValid($_SESSION['access_token']);
+        if($user_data) {
+          $this->addData('user', $user_data);
+        }
+      }
     }
 
     /*
@@ -111,13 +125,21 @@
       return 'Welcome to Haven of Code';
     }
 
+    /*
+    * used to add data to javascript
+    * browser front end
+    * * * */
+    protected function addData($key, $arr) {
+      $this->data[$key] = $arr;
+    }
+
     public function render() {
       // topologically sorts dependencies
       $classes = $this->getDependencies();
       $css = $this->getCss($classes);
       $js = $this->getJs($classes);
       $mustache = $this->getMustache($classes);
-      $data = $this->getData();
+      $data = $this->data;
       ?>
         <!doctype html>
         <html lang="en">
