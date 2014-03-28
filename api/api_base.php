@@ -7,6 +7,21 @@
     abstract public function post($request_data);
     abstract public function get($request_data);
 
+    protected function checkRequiredParams($keys, $params) {
+      foreach($keys as &$key) {
+        if(is_array($params)) {
+          if(!array_key_exists($key, $params)) {
+            return false;
+          }
+        } else {
+          if(!property_exists($params, $key)) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
     protected function getDb() {
       return mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     }
@@ -54,9 +69,9 @@
       // result a formated object for json
       $response;
       if($post) {
-        $response = $this->post();
+        $response = $this->post($data);
       } else {
-        $response = $this->get();
+        $response = $this->get($data);
       }
 
       if(is_string($response)) {

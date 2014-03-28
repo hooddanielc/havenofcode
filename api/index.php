@@ -32,19 +32,25 @@
     // get response body
     // and decode the json
     $post = true;
+    $data = json_decode(file_get_contents('php://input'));
+    if($data) {
+      $method = $data->method;
+      $method_params = $data->data;
+    } else {
+      die('json is incorrect or malformed');
+    }
   } else {
     $method = $_GET['method'];
     $method_params = $_GET;
   }
 
   if(isset($method)) {
-
     // find the class
     foreach($classes as &$cls) {
       if(isset($cls::$api_method) && $cls::$api_method === $method) {
         if(class_exists($cls)) {
           $instance = new $cls($method_params);
-          $response = $instance->exec($post);
+          $response = $instance->exec($post, $method_params);
           echo json_encode($response);
           exit();
         }

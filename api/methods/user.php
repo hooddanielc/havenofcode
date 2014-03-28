@@ -1,6 +1,8 @@
 <?php
 
-  include $_SERVER['DOCUMENT_ROOT'].'/api/api_base.php';
+  if(!class_exists('ApiMethod')) {
+    include $_SERVER['DOCUMENT_ROOT'].'/api/api_base.php';
+  }
 
   /*
   * creates new user in database
