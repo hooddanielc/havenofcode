@@ -48,13 +48,14 @@
 
       if(!$update) {
         // insert
-        $sql = "INSERT INTO article (id, github_id, title, description, md, youtube, repo, published)"
-          ." VALUES (NULL, '".$params->github_id."', '".$params->title."',"
-          ." '".$params->description."','".$params->md."', '".$params->youtube."',"
-          ." '".$params->repo."', '".$params->published."')";
-        
         $con = $this->getDb();
+
         if($con) {
+          $sql = "INSERT INTO article (id, github_id, title, description, md, youtube, repo, published)"
+            ." VALUES (NULL, '".$params->github_id."', '".$con->real_escape_string($params->title)."',"
+            ." '".$con->real_escape_string($params->description)."','".$con->real_escape_string($params->md)."', '".$params->youtube."',"
+            ." '".$params->repo."', '".$params->published."')";
+
           if($con->query($sql)) {
             $params->id = $con->insert_id;
             return $params;
@@ -64,18 +65,19 @@
         return 'error with database connection';
       }
 
-      $sql = "UPDATE article"
-        ." SET title='".$params->title."',"
-        ." description='".$params->description."',"
-        ." md='".$params->md."',"
-        ." youtube='".$params->youtube."',"
-        ." repo='".$params->repo."',"
-        ." published=".$params->published
-        ." WHERE id=".$params->id;
-
       if($this->isAuthenticatedUser($params->github_id)) {
         $con = $this->getDb();
         if($con) {
+
+          $sql = "UPDATE article"
+            ." SET title='".$con->real_escape_string($params->title)."',"
+            ." description='".$con->real_escape_string($params->description)."',"
+            ." md='".$con->real_escape_string($params->md)."',"
+            ." youtube='".$params->youtube."',"
+            ." repo='".$params->repo."',"
+            ." published=".$params->published
+            ." WHERE id=".$params->id;
+
           if($con->query($sql)) {
             return [];
           }
