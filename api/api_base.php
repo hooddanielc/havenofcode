@@ -1,9 +1,27 @@
 <?php
+  include $_SERVER['DOCUMENT_ROOT'].'/config.php';
+
   abstract class ApiMethod {
     public static $api_method = 'your_method';
     public static $requires_authentication = false;
-    abstract protected function post($request_data);
-    abstract protected function get($request_data);
+    abstract public function post($request_data);
+    abstract public function get($request_data);
+
+    protected function getDb() {
+      return mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    }
+
+    protected function isAuthenticatedUser($github_id) {
+      session_start();
+      if(isset($_SESSION['access_token'])) {
+        $token = $_SESSION['access_token']; 
+        ini_set('user_agent','Mozilla/4.0 (compatible; MSIE 6.0)');
+        $result = file_get_contents('https://api.github.com/user?access_token='.$token);
+        $json = json_decode($result);
+        return ($github_id == $json->id);
+      }
+      return false;
+    }
 
     protected function isAuthenticated() {
       // verify if they
