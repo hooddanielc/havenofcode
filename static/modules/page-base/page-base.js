@@ -1,8 +1,19 @@
+app.modules.PageUserNav = Backbone.View.extend({
+  events: {
+    'click .page-user-logout': 'logout'
+  },
+  logout: function() {
+    window.location = '/logout.php';
+  },
+  render: function() {
+    this.$el.html(Mustache.render(app.mustache['page-user-nav'], this.model.attributes));
+  }
+});
+
 app.modules.PageBaseView = Backbone.View.extend({
   events: {
     'click .fb-login': 'login',
-    'click .fb-logout': 'logout',
-    'click .profile-dropdown': 'openDropdown'
+    'click .fb-logout': 'logout'
   },
   login: function(e) {
     e.preventDefault();
@@ -12,28 +23,23 @@ app.modules.PageBaseView = Backbone.View.extend({
     e.preventDefault();
     window.location = '/logout.php';
   },
-  setLoggedIn: function(user) {
-    var self = this;
-    var me = this.model.get('user');
-    self.$el.find('.profile-dropdown img').attr('src', me.avatar_url);
-    self.$el.find('.log-out-wrap').show();
-    self.$el.find('.log-in-wrap').hide();
-  },
-  openDropdown: function(e) {
-    e.preventDefault();
-    console.log('opening dropdown');
+  renderNavigation: function(user) {
+    var el = this.$el.find('.page-base-nav');
+    if(!this.user_nav) {
+      this.user_nav = new app.modules.PageUserNav({
+        el: el,
+        model: new Backbone.Model(app.data.user)
+      });
+    }
+    this.user_nav.render();
   },
   render: function() {
-    window.the_page = this;
-
     this.el.innerHTML += app.mustache['page-base'];
+    this.$elPage = this.$el.find('.content-display-wrapper');
     this.renderPage();
-
-    // check user data
-    if(app.data.user) {
-      this.model.set('user', app.data.user);
-      this.setLoggedIn(app.data.user);
-    }
+    this.renderNavigation();
+    this.$el.find('.loading-background').addClass('hide');
+    this.$el.find('.content-display').removeClass('hide');
 
     // initialize resize event
     var self = this;

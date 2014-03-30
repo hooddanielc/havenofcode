@@ -6,14 +6,14 @@
 
   include 'havenofcode.php';
   include 'modules/page_base.php';
-  include 'modules/video_sequencer.php';
+  include 'modules/article_list.php';
 
   // testing page
   class MyPage extends Page {
     function __construct() {
       parent::__construct();
       $this->page_base = new PageBase();
-      $this->video_sequencer = new VideoSequencer();
+      $this->article_list = new ArticleList();
     }
 
     public static $js = [
