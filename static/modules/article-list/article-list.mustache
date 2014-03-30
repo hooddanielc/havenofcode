@@ -1,0 +1,24 @@
+<div class="article-list">
+  {{#title}}
+    <h1>{{title}}</h1>
+  {{/title}}
+  {{#articles}}
+    <div class="article-list-item">
+
+    <div class="media">
+      <a class="pull-left" href="#">
+        <img
+          class="media-object article-list-avatar"
+          src="http://avatars.github.com/u/{{github_id}}"
+          alt="github avatar #{{github_id}}">
+      </a>
+      <div class="media-body">
+        <a href="article.php?id={{id}}">
+          <h3 class="media-heading">{{title}}</h3>
+        </a>
+        {{description}}
+      </div>
+    </div>
+    </div>
+  {{/articles}}
+</div>
