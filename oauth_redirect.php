@@ -39,7 +39,7 @@
 
         // create new user if not exists
         $user = new User();
-        $user->post(['github_id' => $github_id]);
+        $user->post(['github_id' => $github_id, 'user_cache' => $result]);
         header("Location: index.php");
       } else {
         // oauth is broken

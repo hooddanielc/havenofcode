@@ -1,0 +1,9 @@
+.markdown-editor .CodeMirror {
+  border: 1px solid #eee;
+  height: auto;
+}
+.markdown-editor .CodeMirror-scroll {
+  overflow-y: hidden;
+  overflow-x: auto;
+  min-height: 100px;
+}

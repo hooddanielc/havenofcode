@@ -33,7 +33,9 @@
         ini_set('user_agent','Mozilla/4.0 (compatible; MSIE 6.0)');
         $result = file_get_contents('https://api.github.com/user?access_token='.$token);
         $json = json_decode($result);
-        return ($github_id == $json->id);
+        if($github_id == $json->id) {
+          return $json;
+        }
       }
       return false;
     }

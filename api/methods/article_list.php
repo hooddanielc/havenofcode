@@ -27,18 +27,25 @@
       }
 
       if($params['type'] == 'latest') {
-        $sql = "SELECT id, title, description, github_id FROM article WHERE published=1 ORDER BY id DESC";
+        $sql = "SELECT article.id, article.title, article.description, article.github_id, users.github_id, users.user_cache FROM article"
+        ." INNER JOIN users"
+        ." ON article.github_id=users.github_id"
+        ." WHERE article.published=1 ORDER BY article.id DESC";
 
-        $con = $this->getDb();
-        if($con) {
-          $result = $con->query($sql);
-          if($result) {
+        if($con = $this->getDb()) {
+          if($result = $con->query($sql)) {
             $return_obj = [
               'articles' => []
             ];
             while($row = $result->fetch_assoc()) {
-              $return_obj['articles'][] = $row;
-              $rows[$row['comment_id']] = $row;
+              $user_data = json_decode($row['user_cache']);
+              $return_obj['articles'][] = [
+                'id' => $row['id'],
+                'title' => $row['title'],
+                'description' => $row['description'],
+                'github_id' => $row['github_id'],
+                'user' => $user_data
+              ];
             }
             return $return_obj;
           }

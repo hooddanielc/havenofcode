@@ -17,6 +17,8 @@
     * create new user in database if it exists
     * * * * */
     public function post($params) {
+      
+
       $sql = 'INSERT INTO users'
       .' (github_id)'
       .' SELECT '.$params['github_id']
@@ -25,9 +27,13 @@
       .'  FROM users'
       .' WHERE users.github_id = '.$params['github_id'].')';
 
-      if($this->isAuthenticatedUser($params['github_id'])) {
+      if($user = $this->isAuthenticatedUser($params['github_id'])) {
+        
         $con = $this->getDb();
-        if($con) {
+        if($con = $this->getDb()) {
+          $sql = "INSERT INTO users (github_id, user_cache)"
+            ." VALUES (".$params['github_id'].", '".$con->real_escape_string(json_encode($user))."')"
+            ." ON DUPLICATE KEY UPDATE user_cache = '".$con->real_escape_string(json_encode($user))."'";
           if($con->query($sql)) {
             return [];
           }
