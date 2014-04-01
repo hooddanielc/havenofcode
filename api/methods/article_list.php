@@ -27,7 +27,7 @@
       }
 
       if($params['type'] == 'latest') {
-        $sql = "SELECT article.id, article.title, article.description, article.github_id, users.github_id, users.user_cache FROM article"
+        $sql = "SELECT article.publish_date, article.modified_date, article.id, article.title, article.description, article.github_id, users.github_id, users.user_cache FROM article"
         ." INNER JOIN users"
         ." ON article.github_id=users.github_id"
         ." WHERE article.published=1 ORDER BY article.id DESC";
@@ -44,7 +44,9 @@
                 'title' => $row['title'],
                 'description' => $row['description'],
                 'github_id' => $row['github_id'],
-                'user' => $user_data
+                'user' => $user_data,
+                'modified_date' => $row['modified_date'],
+                'publish_date' => $row['publish_date']
               ];
             }
             return $return_obj;

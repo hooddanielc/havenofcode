@@ -5,6 +5,7 @@
     ];
 
     public static $js = [
+      'main/third-party/moment.js',
       'modules/article-list/article-list.js'
     ];
 

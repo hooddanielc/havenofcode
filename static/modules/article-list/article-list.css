@@ -5,3 +5,11 @@
 .article-list .article-list-avatar {
   width: 64px;
 }
+.article-list .image-wrapper {
+  width: 64px;
+  height: 64px;
+  background: #eee;
+}
+.article-list .bottom-text {
+  margin-top: 10px;
+}

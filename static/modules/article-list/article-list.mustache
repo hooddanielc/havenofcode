@@ -4,21 +4,26 @@
   {{/title}}
   {{#articles}}
     <div class="article-list-item">
-
-    <div class="media">
-      <a class="pull-left" href="#">
-        <img
-          class="media-object article-list-avatar"
-          src="http://avatars.github.com/u/{{github_id}}"
-          alt="github avatar #{{github_id}}">
-      </a>
-      <div class="media-body">
-        <a href="article.php?id={{id}}">
-          <h3 class="media-heading">{{title}}</h3>
+      <div class="media">
+        <a class="image-wrapper pull-left" href="#">
+          <img
+            class="media-object article-list-avatar"
+            src="http://avatars.github.com/u/{{github_id}}"
+            alt="github avatar #{{github_id}}">
         </a>
-        {{description}}
+        <div class="media-body">
+          <a href="article.php?id={{id}}">
+            <h3 class="media-heading">{{title}}</h3>
+          </a>
+          {{description}}
+        </div>
       </div>
-    </div>
+      <p class="bottom-text">
+        By <a href="profile.php?id={{user.id}}">{{user.login}}</a> {{fromNow}}
+        {{#canEdit}}
+          <a href="create_article.php?article={{id}}">Edit</a>
+        {{/canEdit}}
+      </p>
     </div>
   {{/articles}}
 </div>

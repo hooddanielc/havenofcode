@@ -46,6 +46,8 @@ app.modules.ArticleEditorModel = Backbone.Model.extend({
           }),
           success: function(data) {
             if(data.success) {
+              m.id = data.data.id;
+              m.set('id', data.data.id);
               m.trigger('create_success');
             } else {
               m.trigger('sync_failed', 'Something went wrong on the server. Could be that darn cat again :-(');
@@ -76,8 +78,7 @@ app.modules.ArticleEditorModel = Backbone.Model.extend({
               m.trigger('update_success');
             } else {
               // assuming the user is malicious...
-              //window.location = '/create_article.php';
-              console.log(data);
+              window.location = '/create_article.php';
             }
           }
         });
