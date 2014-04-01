@@ -153,6 +153,7 @@
             <title><?php echo $this->getTitle(); ?></title>
             <meta name="description" content="<?php echo $this->getDescription(); ?>">
             <meta name="author" content="Daniel Hood">
+            <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
             <?php echo $css; ?>
           </head>
           <body>
