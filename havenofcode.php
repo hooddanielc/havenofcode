@@ -108,7 +108,12 @@
         if($user_data) {
           $this->addData('user', $user_data);
         }
+      } else {
+        $this->addData('user', []);
       }
+
+      $this->addData('get', $_GET);
+      $this->addData('post', $_POST);
     }
 
     /*

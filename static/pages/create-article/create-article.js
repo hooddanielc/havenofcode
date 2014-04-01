@@ -4,14 +4,23 @@ app.modules.Page = app.modules.PageBaseView.extend({
     var el = $('<div/>');
     this.$elPage.append(el);
 
+    // data
+    var article_editor_data = {};
+    var aid = app.data.get.article;
+    if(aid && !isNaN(parseInt(aid)) && isFinite(aid) && aid > 0) {
+      article_editor_data.id = parseInt(aid);
+      article_editor_data.editor_title = 'Update Article';
+    }
+
     this.article_editor = new app.modules.ArticleEditorView({
       el: el,
-      model: new Backbone.Model({
-        editor_title: 'Create Article',
-        editor_markdown: 'Hello World\n==========='
-      })
+      model: new app.modules.ArticleEditorModel(article_editor_data)
     });
-    this.article_editor.render();
+    if(aid) {
+      this.article_editor.model.fetch();
+    } else {
+      this.article_editor.render();
+    }
   }
 });
 

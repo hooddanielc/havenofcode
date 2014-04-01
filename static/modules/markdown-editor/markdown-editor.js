@@ -17,7 +17,8 @@ app.modules.MarkdownEditorView = Backbone.View.extend({
     // render codemirror
     var t_area = this.$el.find('.markdown-editor-text-area');
     this.codemirror = CodeMirror.fromTextArea(t_area[0], {
-      lineNumbers: true
+      lineNumbers: true,
+      lineWrapping: true
     });
 
     this.codemirror.on('change', function(cm, change) {

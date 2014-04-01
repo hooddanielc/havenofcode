@@ -9,7 +9,7 @@
   * omit id for creating a new row
   * * * * */
   class Article extends ApiMethod {
-    public static $requires_authentication = true;
+    public static $requires_authentication = false;
     public static $api_method = 'article';
 
     /*
@@ -51,8 +51,8 @@
         $con = $this->getDb();
 
         if($con) {
-          $sql = "INSERT INTO article (id, github_id, title, description, md, youtube, repo, published)"
-            ." VALUES (NULL, '".$params->github_id."', '".$con->real_escape_string($params->title)."',"
+          $sql = "INSERT INTO article (publish_date, id, github_id, title, description, md, youtube, repo, published)"
+            ." VALUES (NOW(), NULL, '".$params->github_id."', '".$con->real_escape_string($params->title)."',"
             ." '".$con->real_escape_string($params->description)."','".$con->real_escape_string($params->md)."', '".$params->youtube."',"
             ." '".$params->repo."', '".$params->published."')";
 
@@ -68,20 +68,20 @@
       if($this->isAuthenticatedUser($params->github_id)) {
         $con = $this->getDb();
         if($con) {
-
           $sql = "UPDATE article"
             ." SET title='".$con->real_escape_string($params->title)."',"
             ." description='".$con->real_escape_string($params->description)."',"
             ." md='".$con->real_escape_string($params->md)."',"
-            ." youtube='".$params->youtube."',"
-            ." repo='".$params->repo."',"
-            ." published=".$params->published
+            ." youtube='".$con->real_escape_string($params->youtube)."',"
+            ." repo='".$con->real_escape_string($params->repo)."',"
+            ." published=".$params->published.","
+            ." modified_date=NOW()"
             ." WHERE id=".$params->id;
 
           if($con->query($sql)) {
             return [];
           }
-          return 'insert failed, '.$con->error;
+          return 'update failed, '.$con->error;
         }
         return 'error with database connection';
       }
@@ -99,13 +99,16 @@
         return 'required parameters missing (id)';
       }
 
-      $sql = "SELECT * FROM article WHERE id=".$params['id']." AND published=1";
+      $sql = "SELECT * FROM article WHERE id=".$params['id'];
 
       $con = $this->getDb();
       if($con) {
-        $result = $con->query($sql);
-        if($result) {
-          return $result->fetch_assoc();
+        if($result = $con->query($sql)) {
+          $row = $result->fetch_assoc();
+          if($row['published'] == 0 && !$this->isAuthenticatedUser($row['github_id'])) {
+            return 'this article is private and only the signed in human is aloud to read';
+          }
+          return $row;
         }
         return 'query failed';
       }

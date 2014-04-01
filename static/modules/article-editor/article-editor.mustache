@@ -1,30 +1,31 @@
 <div class="article-editor">
   {{#editor_title}}
-    <h1>{{editor_title}}</h1>
+    <h1 class="article-editor-title">{{editor_title}}</h1>
   {{/editor_title}}
-  <form role="form">
+  <form role="form" class="article-editor-form">
     <div class="form-group">
-      <label for="form-title">Article Title</label>
-      <input type="email" class="form-control" id="form-title" placeholder="Enter title" value="{{title}}">
+      <label for="form-title">Title</label>
+      <input name="title" type="text" class="form-control" id="form-title" placeholder="Enter title" value="{{title}}">
     </div>
     <div class="form-group">
-      <label for="form-description">Article Description</label>
-      <textarea class="form-control" placeholder="Enter description" id="form-description">{{description}}</textarea>
+      <label for="form-description">Description</label>
+      <textarea name="description" class="form-control" placeholder="Enter description" id="form-description">{{description}}</textarea>
     </div>
     <div class="markdown-editor-container"></div>
     <div class="form-group">
-      <label for="form-repo">Article github repository link</label>
-      <input type="email" class="form-control" id="form-repo" placeholder="Enter repo" value="{{github_repo_link}}">
+      <label for="form-repo">Github repository link</label>
+      <input name="github_repo_link" type="text" class="form-control" id="form-repo" placeholder="Enter repo" value="{{github_repo_link}}">
     </div>
     <div class="form-group">
-      <label for="form-youtube">Article youtube video link</label>
-      <input type="email" class="form-control" id="form-youtube" placeholder="Enter youtube" value="{{youtube_link}}">
+      <label for="form-youtube">Youtube video link</label>
+      <input name="youtube_link" class="form-control" id="form-youtube" placeholder="Enter youtube" value="{{youtube_link}}">
     </div>
     <div class="checkbox">
       <label>
-        <input type="checkbox"> Published (Makes your article public to the whole world)
+        <input name="published" {{#published}} checked {{/published}} type="checkbox" class="form-control-checkbox"> Published (Makes your article public to the whole world)
       </label>
     </div>
-    <button type="submit" class="btn btn-default">Save</button>
+    <div class="warnings"></div>
+    <button type="submit" class="btn btn-default save-article">Save</button>
   </form>
 </div>
