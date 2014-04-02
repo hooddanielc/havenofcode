@@ -46,6 +46,13 @@
                 </div>
               </form>
             {{/edit}}
+            {{#currentUser}}
+              <form action="#" class="delete-form">
+                <div class="post-row">
+                  <button type="submit" class="pull-right btn btn-danger">Delete</button>
+                </div>
+              </form>
+            {{/currentUser}}
           {{/comment_deleted}}
         </div>
       </div>

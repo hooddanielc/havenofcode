@@ -1,6 +1,29 @@
 app.modules.CommentBox = Backbone.View.extend({
   events: {
-    'submit .comment-form': 'post_comment'
+    'submit .comment-form': 'post_comment',
+    'submit .delete-form': 'delete_comment' 
+  },
+  delete_comment: function(e) {
+    e.preventDefault();
+    var self = this;
+    var m = this.model.attributes;
+    var data = {
+      github_id: m.github_id,
+      comment_id: m.comment_id
+    }
+    $.ajax({
+      type: "POST",
+      dataType: 'json',
+      url: '/api/index.php',
+      data: JSON.stringify({
+        'method': 'comment',
+        'data': data
+      }),
+      success: function(o) {
+        self.model.set('comment_deleted', true);
+        self.render();
+      }
+    });
   },
   post_comment: function(e) {
     var self = this;
@@ -35,6 +58,7 @@ app.modules.CommentBox = Backbone.View.extend({
     });
   },
   render: function(edit) {
+    this.model.attributes.currentUser = (this.model.attributes.github_id == app.data.user.id && !edit);
     this.model.attributes.fromNow = moment(this.model.attributes.timestamp).fromNow();
     if(this.model.attributes.in_reply_to) {
       this.model.attributes.in_reply_to.fromNow = moment(this.model.attributes.in_reply_to.timestamp).fromNow()
@@ -47,7 +71,7 @@ app.modules.CommentBox = Backbone.View.extend({
 app.modules.Comments = Backbone.View.extend({
   render: function() {
     var coms = this.model.get('comments');
-    if(app.data.user) {
+    if(app.data.user.id) {
       // render blank comment box in edit mode
       var el = $('<div/>');
       this.$el.append(el);
