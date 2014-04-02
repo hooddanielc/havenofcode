@@ -1,7 +1,15 @@
 app.modules.CommentBox = Backbone.View.extend({
   events: {
     'submit .comment-form': 'post_comment',
-    'submit .delete-form': 'delete_comment' 
+    'submit .delete-form': 'delete_comment',
+    'click .reply-to-comment': 'reply'
+  },
+  focus: function() {
+    this.$el.find('textarea').focus();
+  },
+  reply: function(e) {
+    e.preventDefault();
+    this.trigger('reply_to_comment', this.model.attributes);
   },
   delete_comment: function(e) {
     e.preventDefault();
@@ -32,10 +40,9 @@ app.modules.CommentBox = Backbone.View.extend({
       return;
     var comment_foreign = null;
     var m = this.model.attributes;
-    if(m.foreign) {
-      comment_foreign: m.foreign.comment_id
+    if(m.in_reply_to) {
+      comment_foreign = m.in_reply_to.comment_id;
     }
-    // disable button
     var data = {
       github_id: m.github_id,
       comment_text: this.$el.find('textarea').val(),
@@ -69,20 +76,30 @@ app.modules.CommentBox = Backbone.View.extend({
 });
 
 app.modules.Comments = Backbone.View.extend({
+  replyToComment: function(o) {
+    // replace edit
+    var data = {
+      in_reply_to: o,
+      github_id: app.data.user.id
+    }
+    this.newComment.model.set(data);
+    this.newComment.render(true);
+    this.newComment.focus();
+  },
   render: function() {
     var coms = this.model.get('comments');
     if(app.data.user.id) {
       // render blank comment box in edit mode
       var el = $('<div/>');
       this.$el.append(el);
-      var newComment = new app.modules.CommentBox({
+      this.newComment = new app.modules.CommentBox({
         el: el,
         model: new Backbone.Model({
           github_id: app.data.user.id,
           user_cache: app.data.user
         })
       });
-      newComment.render(true);
+      this.newComment.render(true);
     }
     // render all comments
     for(var i = 0; i < coms.length; i++) {
@@ -100,6 +117,8 @@ app.modules.Comments = Backbone.View.extend({
         model: new Backbone.Model(coms[i])
       });
       com.render();
+
+      com.on('reply_to_comment', this.replyToComment, this);
     }
   }
 });

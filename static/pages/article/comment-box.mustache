@@ -1,5 +1,4 @@
 <div class="comment-box">
-
   {{#in_reply_to}}
     <div class="media">
       <a class="pull-left" href="#">
@@ -53,6 +52,11 @@
                 </div>
               </form>
             {{/currentUser}}
+            {{^edit}}
+              {{^currentUser}}
+                <p><a href="#" class="reply-to-comment">reply</a></p>
+              {{/currentUser}}
+            {{/edit}}
           {{/comment_deleted}}
         </div>
       </div>
