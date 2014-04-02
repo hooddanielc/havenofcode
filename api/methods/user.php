@@ -10,7 +10,7 @@
   * and the user session token matches github id
   * * * * */
   class User extends ApiMethod {
-    public static $requires_authentication = true;
+    public static $requires_authentication = false;
     public static $api_method = 'user';
 
     /*
@@ -45,10 +45,32 @@
     }
 
     /*
-    * get not used
+    * get used to get cached
+    * user data from github
     * * * * * * * * * */
     public function get($params) {
-      return [];
+      $required_params = [
+        'github_id'
+      ];
+
+      if(!$this->checkRequiredParams($required_params, $params)) {
+        return 'User id is required';
+      }
+
+      if($con = $this->getDb()) {
+        $sql = "SELECT * FROM users WHERE github_id=".$params['github_id'];
+        if($result = $con->query($sql)) {
+          $row = $result->fetch_assoc();
+          if(isset($row['user_cache'])) {
+            return [
+              'user' => json_decode($row['user_cache'])
+            ];
+          }
+          return "user does not exist";
+        }
+        return 'error with database query';
+      }
+      return 'error with database connection';
     }
   }
 ?>

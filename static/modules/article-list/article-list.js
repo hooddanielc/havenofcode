@@ -4,7 +4,17 @@ app.modules.ArticleListModel = Backbone.Model.extend({
     // method is only for reads
     if(method === 'read') {
       if(model.attributes.type === 'latest') {
-        $.getJSON('/api?method=article_list&type=latest', function(o) {
+        $.getJSON('/api?method=article_list&type=' + this.get('type'), function(o) {
+          for(var i = 0; i < o.data.articles.length; i++) {
+            o.data.articles[i].fromNow = moment(o.data.articles[i].publish_date).fromNow();
+            if(app.data.user) {
+              o.data.articles[i].canEdit = (o.data.articles[i].user.id == app.data.user.id);
+            }
+          }
+          self.set('articles', o.data.articles);
+        });
+      } else if(model.attributes.type == 'user') {
+        $.getJSON('/api?method=article_list&type=' + this.get('type') + '&github_id=' + this.get('github_id'), function(o) {
           for(var i = 0; i < o.data.articles.length; i++) {
             o.data.articles[i].fromNow = moment(o.data.articles[i].publish_date).fromNow();
             if(app.data.user) {

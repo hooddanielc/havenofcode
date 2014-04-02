@@ -1,8 +1,18 @@
 app.modules.Page = app.modules.PageBaseView.extend({
   renderPage: function() {
-    // render article list
+    this.$elPage.html(Mustache.render(app.mustache.profile, this.model.attribtues));
+
+    // render users article list
     var el = $('<div/>');
-    this.$elPage.append(el);
+    this.$elPage.find('.user-articles').append(el);
+    var list = new app.modules.ArticleListView({
+      el: el,
+      model: new app.modules.ArticleListModel({
+        'title': app.data.user_profile.login + "'s Articles",
+        'github_id': app.data.user_profile.id,
+        'type': 'user'
+      })
+    });
   }
 });
 
