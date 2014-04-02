@@ -1,0 +1,57 @@
+<div class="comment-box">
+
+  {{#in_reply_to}}
+    <div class="media">
+      <a class="pull-left" href="#">
+        <img class="media-object" src="https://avatars.githubusercontent.com/u/{{github_id}}?s=140" />
+      </a>
+      <div class="media-body">
+        <div class="msg-body">
+          <p>
+            <a href="#">{{in_reply_to.user_cache.login}}</a>
+            {{in_reply_to.fromNow}}
+          </p>
+          {{#in_reply_to.comment_deleted}}
+            <p>&lt; comment deleted by author &gt;</p>
+          {{/in_reply_to.comment_deleted}}
+          {{^in_reply_to.comment_deleted}}
+            <p>{{in_reply_to.comment_text}}</p>
+          {{/in_reply_to.comment_deleted}}
+        </div>
+  {{/in_reply_to}}
+    <div class="media">
+      <a class="pull-left" href="#">
+        <img class="media-object" src="https://avatars.githubusercontent.com/u/{{github_id}}?s=140" />
+      </a>
+      <div class="media-body">
+        <div class="msg-body">
+          <p>
+            <a href="#">{{user_cache.login}}</a> 
+            {{^edit}}
+              {{fromNow}}
+            {{/edit}}
+          </p>
+          {{#comment_deleted}}
+            <p>&lt; comment deleted by author &gt;</p>
+          {{/comment_deleted}}
+          {{^comment_deleted}}
+            {{^edit}}
+              <p>{{comment_text}}</p>
+            {{/edit}}
+            {{#edit}}
+              <form action="#" class="comment-form">
+                <textarea placeholder="Join the discussion" class="form-control">{{comment_text}}</textarea>
+                <div class="post-row">
+                  <button type="submit" class="pull-right btn btn-primary">Post</button>
+                </div>
+              </form>
+            {{/edit}}
+          {{/comment_deleted}}
+        </div>
+      </div>
+    </div>
+  {{#in_reply_to}}
+      </div>
+    </div>
+  {{/in_reply_to}}
+</div>

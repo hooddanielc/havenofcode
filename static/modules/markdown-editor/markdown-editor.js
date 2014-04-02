@@ -40,8 +40,6 @@ app.modules.MarkdownEditorView = Backbone.View.extend({
     // update the preview
     this.updatePreview(this.codemirror.getValue());
 
-    window.codemirror = this.codemirror;
-
     // refresh codemirror display
     $(document).on('ready', function() {
       self.codemirror.refresh();

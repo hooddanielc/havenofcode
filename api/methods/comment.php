@@ -57,8 +57,8 @@
           $con = $this->getDb();
           if($con) {
             $comment_foreign = property_exists($params, 'comment_foreign') && isset($params->comment_foreign) ? $params->comment_foreign : 'NULL';
-            $sql = "INSERT INTO article_comment (comment_id, comment_foreign, article_id, comment_deleted, github_id, comment_text)"
-              ." VALUES (NULL, ".$comment_foreign.", ".$params->article_id.", 0, ".$params->github_id.", '".$con->real_escape_string($params->comment_text)."')";
+            $sql = "INSERT INTO article_comment (timestamp, comment_id, comment_foreign, article_id, comment_deleted, github_id, comment_text)"
+              ." VALUES (NOW(), NULL, ".$comment_foreign.", ".$params->article_id.", 0, ".$params->github_id.", '".$con->real_escape_string($params->comment_text)."')";
             if($con->query($sql)) {
               $params->comment_id = $con->insert_id;
               return $params;
@@ -87,7 +87,7 @@
     }
 
     /*
-    * gets one article row
+    * gets comments with article id
     * * * * * * * * * */
     public function get($params) {
       $required_params = [
@@ -96,13 +96,14 @@
       if(!$this->checkRequiredParams($required_params, $params)) {
         return 'required parameters missing (article_id)';
       }
-      $sql = "SELECT * FROM article_comment WHERE article_id=".$params['article_id']." ORDER BY comment_id ASC";
+      $sql = "SELECT article_comment.*, users.github_id, users.user_cache FROM article_comment INNER JOIN users ON article_comment.github_id=users.github_id WHERE article_id=".$params['article_id']." ORDER BY comment_id ASC";
       $con = $this->getDb();
       if($con) {
         if($result = $con->query($sql)) {
           $rows = [];
           $return_obj = [];
           while($row = $result->fetch_assoc()) {
+            $row['user_cache'] = json_decode($row['user_cache']);
             $rows[$row['comment_id']] = $row;
             if($row['comment_deleted']) {
               $row['comment_text'] = '';
@@ -110,7 +111,7 @@
             if(isset($row['comment_foreign'])) {
               $row['in_reply_to'] = $rows[$row['comment_foreign']];
             }
-            $return_obj[] = $row;
+            array_unshift($return_obj, $row);
           }
           return $return_obj;
         }
