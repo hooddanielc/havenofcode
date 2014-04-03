@@ -59,6 +59,7 @@ app.modules.CommentBox = Backbone.View.extend({
         'data': data
       }),
       success: function(o) {
+        self.trigger('comment_posted');
         self.model.set(o.data);
         self.render();
       }
@@ -86,12 +87,11 @@ app.modules.Comments = Backbone.View.extend({
     this.newComment.render(true);
     this.newComment.focus();
   },
-  render: function() {
-    var coms = this.model.get('comments');
+  makeCommentPlaceholder: function() {
     if(app.data.user.id) {
       // render blank comment box in edit mode
       var el = $('<div/>');
-      this.$el.append(el);
+      this.$el.prepend(el);
       this.newComment = new app.modules.CommentBox({
         el: el,
         model: new Backbone.Model({
@@ -100,7 +100,15 @@ app.modules.Comments = Backbone.View.extend({
         })
       });
       this.newComment.render(true);
+      var self = this;
+      this.newComment.on('comment_posted', function() {
+        self.makeCommentPlaceholder();
+      });
     }
+  },
+  render: function() {
+    var coms = this.model.get('comments');
+    this.makeCommentPlaceholder();
     // render all comments
     for(var i = 0; i < coms.length; i++) {
       coms[i].comment_deleted = coms[i].comment_deleted == '1';
