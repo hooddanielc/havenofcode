@@ -17,27 +17,27 @@
     * create new user in database if it exists
     * * * * */
     public function post($params) {
-      
-
-      $sql = 'INSERT INTO users'
-      .' (github_id)'
-      .' SELECT '.$params['github_id']
-      .'  FROM dual'
-      .' WHERE NOT EXISTS (SELECT *'
-      .'  FROM users'
-      .' WHERE users.github_id = '.$params['github_id'].')';
-
       if($user = $this->isAuthenticatedUser($params['github_id'])) {
-        
-        $con = $this->getDb();
         if($con = $this->getDb()) {
-          $sql = "INSERT INTO users (github_id, user_cache)"
-            ." VALUES (".$params['github_id'].", '".$con->real_escape_string(json_encode($user))."')"
-            ." ON DUPLICATE KEY UPDATE user_cache = '".$con->real_escape_string(json_encode($user))."'";
-          if($con->query($sql)) {
-            return [];
+          $stmt = $con->prepare(
+            "INSERT INTO users (github_id, user_cache)"
+            ." VALUES (?, ?)"
+            ." ON DUPLICATE KEY UPDATE user_cache=?"
+          );
+          if($stmt) {
+            $user_json = json_encode($user);
+            $stmt->bind_param(
+              "iss",
+              $params['github_id'],
+              $user_json,
+              $user_json
+            );
+            if($stmt->execute()) {
+              return [];
+            }
+            return 'statement execution failed';
           }
-          return 'user created failed, '.$con->error;
+          return 'statement preparation failed';
         }
         return 'error with database connection';
       }
@@ -52,23 +52,28 @@
       $required_params = [
         'github_id'
       ];
-
       if(!$this->checkRequiredParams($required_params, $params)) {
         return 'User id is required';
       }
-
       if($con = $this->getDb()) {
-        $sql = "SELECT * FROM users WHERE github_id=".$params['github_id'];
-        if($result = $con->query($sql)) {
-          $row = $result->fetch_assoc();
-          if(isset($row['user_cache'])) {
+        if($stmt = $con->prepare("SELECT * FROM users WHERE github_id=?")) {
+          $stmt->bind_param("i", $params['github_id']);
+          $result_set = [
+            'github_id' => '',
+            'user_cache' => ''
+          ];
+          $stmt->bind_result(
+            $result_set['github_id'],
+            $result_set['user_cache']
+          );
+          if($stmt->execute() && $stmt->fetch()) {
             return [
-              'user' => json_decode($row['user_cache'])
+              'user' => json_decode($result_set['user_cache'])
             ];
           }
-          return "user does not exist";
+          return 'user does not exists';
         }
-        return 'error with database query';
+        return 'statement preparation failed';
       }
       return 'error with database connection';
     }

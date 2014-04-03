@@ -48,40 +48,64 @@
 
       if(!$update) {
         // insert
-        $con = $this->getDb();
-
-        if($con) {
-          $sql = "INSERT INTO article (publish_date, id, github_id, title, description, md, youtube, repo, published)"
-            ." VALUES (NOW(), NULL, '".$params->github_id."', '".$con->real_escape_string($params->title)."',"
-            ." '".$con->real_escape_string($params->description)."','".$con->real_escape_string($params->md)."', '".$params->youtube."',"
-            ." '".$params->repo."', '".$params->published."')";
-
-          if($con->query($sql)) {
-            $params->id = $con->insert_id;
-            return $params;
+        if($con = $this->getDb()) {
+          $stmt = $con->prepare(
+            "INSERT INTO article (publish_date, id, github_id, title, description, md, youtube, repo, published)"
+            ." VALUES (NOW(), NULL, ?, ?, ?, ?, ?, ?, ?)"
+          );
+          if($stmt) {
+            $stmt->bind_param(
+              "isssssi",
+              $params->github_id,
+              $params->title,
+              $params->description,
+              $params->md,
+              $params->youtube,
+              $params->repo,
+              $params->published
+            );
+            if($stmt->execute()) {
+              $params->id = $con->insert_id;
+              return $params;
+            }
+            return 'statement execution failed';
           }
-          return 'insert failed, '.$con->error;
+         return 'statement preparation failed'; 
         }
         return 'error with database connection';
       }
 
+      // update
       if($this->isAuthenticatedUser($params->github_id)) {
-        $con = $this->getDb();
-        if($con) {
-          $sql = "UPDATE article"
-            ." SET title='".$con->real_escape_string($params->title)."',"
-            ." description='".$con->real_escape_string($params->description)."',"
-            ." md='".$con->real_escape_string($params->md)."',"
-            ." youtube='".$con->real_escape_string($params->youtube)."',"
-            ." repo='".$con->real_escape_string($params->repo)."',"
-            ." published=".$params->published.","
+        if($con = $this->getDb()) {
+          $stmt = $con->prepare(
+            "UPDATE article"
+            ." SET title=?,"
+            ." description=?,"
+            ." md=?,"
+            ." youtube=?,"
+            ." repo=?,"
+            ." published=?,"
             ." modified_date=NOW()"
-            ." WHERE id=".$params->id;
-
-          if($con->query($sql)) {
-            return [];
+            ." WHERE id=?"
+          );
+          if($stmt) {
+            $stmt->bind_param(
+              "sssssii",
+              $params->title,
+              $params->description,
+              $params->md,
+              $params->youtube,
+              $params->repo,
+              $params->published,
+              $params->id
+            );
+            if($stmt->execute()) {
+              return [];
+            }
+            return 'mysql statement execute failed';
           }
-          return 'update failed, '.$con->error;
+          return 'statement preparation failed';
         }
         return 'error with database connection';
       }
@@ -99,18 +123,43 @@
         return 'required parameters missing (id)';
       }
 
-      $sql = "SELECT * FROM article WHERE id=".$params['id'];
-
-      $con = $this->getDb();
-      if($con) {
-        if($result = $con->query($sql)) {
-          $row = $result->fetch_assoc();
-          if($row['published'] == 0 && !$this->isAuthenticatedUser($row['github_id'])) {
-            return 'this article is private and only the signed in human is aloud to read';
+      if($con = $this->getDb()) {
+        if($stmt = $con->prepare("SELECT * FROM article WHERE id=?")) {
+          $stmt->bind_param("i", $params['id']);
+          $result_set = [
+            'id' => '',
+            'github_id' => '',
+            'title' => '',
+            'description' => '',
+            'md' => '',
+            'youtube' => '',
+            'repo' => '',
+            'published' => '',
+            'publish_date' => '',
+            'modified_date' => ''
+          ];
+          $stmt->bind_result(
+            $result_set['id'],
+            $result_set['github_id'],
+            $result_set['title'],
+            $result_set['description'],
+            $result_set['md'],
+            $result_set['youtube'],
+            $result_set['repo'],
+            $result_set['published'],
+            $result_set['publish_date'],
+            $result_set['modified_date']
+          );
+          if($stmt->execute() && $stmt->fetch()) {
+            return $result_set;
+            if($result_set['published'] == 0 && !$this->isAuthenticatedUser($result_set['github_id'])) {
+              return 'this article is private and only the signed in human is aloud to read';
+            }
+            return $result_set;
           }
-          return $row;
+          return 'query failed';
         }
-        return 'query failed';
+        return 'statement preperation failed';
       }
       return 'error with database connection';
     }
