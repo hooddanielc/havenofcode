@@ -1,6 +1,7 @@
 .article-list .dh-scroll-loading,
-.article-list .dh-scroll-end {
-  font-size: 30px;
+.article-list .dh-scroll-end,
+.article-list .zero-results-message {
+  font-size: 20px;
   padding: 10px;
   background: #eee;
   border-radius: 5px;

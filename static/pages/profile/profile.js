@@ -10,6 +10,7 @@ app.modules.Page = app.modules.PageBaseView.extend({
       model: new app.modules.ArticleListModel({
         'title': app.data.user_profile.login + "'s Articles",
         'github_id': app.data.user_profile.id,
+        no_results_msg: 'User has not created any articles',
         'type': 'user'
       })
     });

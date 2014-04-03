@@ -9,6 +9,7 @@
       _renderAmount = o.renderAmount || 5,
       _renderMore = o.renderMore || function(){},
       _loadMore = o.loadMore || function(){},
+      _onEnd = o.onEnd || function(){},
       _stop = false,
       _itemsWaitingToBeRendered = [],
       _scrollEl = $this,
@@ -72,6 +73,7 @@
         $.proxy(_renderMore, $this)(_itemsWaitingToBeRendered);
         $this.find('.dh-scroll-loading').css('display', 'none');
         $this.find('.dh-scroll-end').css('display', 'block');
+        _onEnd();
         return;
       }
 
@@ -137,7 +139,8 @@ app.modules.ArticleListModel = Backbone.Model.extend({
   defaults: {
     title: 'Latest Posts',
     type: 'latest',
-    articles: []
+    articles: [],
+    no_results_msg: 'No articles found'
   }
 });
 
@@ -146,9 +149,16 @@ app.modules.ArticleListView = Backbone.View.extend({
     var self = this;
     var lemmetakeaselfie = this;
     this.$el.html(Mustache.render(app.mustache['article-list'], this.model.attributes));
-    
+
     // infinite scroll will drive the loading of content
+    var foundSome = false;
     $(document.body).scrolltastic({
+      onEnd: function() {
+        if(!foundSome) {
+          lemmetakeaselfie.$el.find('.dh-scroll-end').css('display', 'none');
+          lemmetakeaselfie.$el.find('.zero-results-message').css('display', 'block');
+        }
+      },
       loadMore: function(page) {
         var self = this;
         var type = lemmetakeaselfie.model.get('type');
@@ -167,6 +177,9 @@ app.modules.ArticleListView = Backbone.View.extend({
         }
       },
       renderMore: function(data) {
+        if(data.length > 0) {
+          foundSome = true;
+        }
         self.$el.append(el);
         var articles = data;
         var article_container = self.$el.find('.article-list-items');
