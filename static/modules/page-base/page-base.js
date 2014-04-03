@@ -1,12 +1,23 @@
 app.modules.PageUserNav = Backbone.View.extend({
   events: {
-    'click .page-user-logout': 'logout'
+    'click .page-user-logout': 'logout',
+    'submit .page-base-search-form': 'search'
+  },
+  search: function(e) {
+    e.preventDefault();
+    var value = this.$el.find('.page-base-input').val();
+    if(value != '') {
+      window.location = '/search.php?q=' + value;
+    }
   },
   logout: function() {
     window.location = '/logout.php';
   },
   render: function() {
     this.$el.html(Mustache.render(app.mustache['page-user-nav'], this.model.attributes));
+    if(app.data.get.q) {
+      this.$el.find('.page-base-input').val(app.data.get.q);
+    }
   }
 });
 

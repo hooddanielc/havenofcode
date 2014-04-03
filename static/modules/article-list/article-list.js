@@ -160,6 +160,10 @@ app.modules.ArticleListView = Backbone.View.extend({
           $.getJSON('/api?method=article_list&type='+ lemmetakeaselfie.model.get('type') +'&rows=20&start=' + (page * 20), function(o) {
             self.bufferItems(o.data.articles);
           });
+        } else if (type == 'query') {
+          $.getJSON('/api?method=article_list&query='+ lemmetakeaselfie.model.get('query') +'&type='+ lemmetakeaselfie.model.get('type') +'&rows=20&start=' + (page * 20), function(o) {
+            self.bufferItems(o.data.articles);
+          });
         }
       },
       renderMore: function(data) {

@@ -49,6 +49,9 @@ body {
 }
 
 /* user navigation */
+.page-base-nav .page-base-search {
+  width: 280px;
+}
 .page-base-nav {
   border-radius: 0;
 }

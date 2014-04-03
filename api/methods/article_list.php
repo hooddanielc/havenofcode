@@ -161,6 +161,70 @@
           return 'statement preparation failed';
         }
         return 'error with database connection';
+      } else if($params['type'] == 'query') {
+        if($con = $this->getDb()) {
+          $stmt = $con->prepare(
+            "SELECT article.published, article.publish_date, article.modified_date, article.id, article.title, article.description, article.github_id, users.user_cache FROM article"
+            ." INNER JOIN users"
+            ." ON article.github_id=users.github_id"
+            ." WHERE article.published=1 AND (article.title LIKE ? OR article.md LIKE ?) ORDER BY article.id DESC LIMIT ?, ?"
+          );
+          if($stmt) {
+            $q = '%'.$params['query'].'%';
+            $stmt->bind_param(
+              "ssii",
+              $q,
+              $q,
+              $params['start'],
+              $params['rows']
+            );
+            $result_set = [
+              'published' => '',
+              'publish_date' => '',
+              'modified_date' => '',
+              'id' => '',
+              'title' => '',
+              'description' => '',
+              'github_id' => '',
+              'user_cache' => '',
+            ];
+            $stmt->bind_result(
+              $result_set['published'],
+              $result_set['publish_date'],
+              $result_set['modified_date'],
+              $result_set['id'],
+              $result_set['title'],
+              $result_set['description'],
+              $result_set['github_id'],
+              $result_set['user_cache']
+            );
+            if($stmt->execute()) {
+              $return_obj = [
+                'articles' => []
+              ];
+              while($stmt->fetch()) {
+                $row = [];
+                foreach ($result_set as $key => $val) {
+                  $row[$key] = $val;
+                }
+                $user_data = json_decode($row['user_cache']);
+                $return_obj['articles'][] = [
+                  'id' => $row['id'],
+                  'title' => $row['title'],
+                  'description' => $row['description'],
+                  'github_id' => $row['github_id'],
+                  'user' => $user_data,
+                  'modified_date' => $row['modified_date'],
+                  'publish_date' => $row['publish_date']
+                ];
+              }
+              return $return_obj;
+            }
+            return 'statement execution failed';
+          }
+          return 'statement preparation failed'.$con->error;
+        }
+        return 'error with database connection';
       }
       return 'unknown type ('.$params['type'].')';
     }

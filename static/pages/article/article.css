@@ -29,7 +29,7 @@
   background: #eee;
   -webkit-border-radius: 0px;
   -moz-border-radius: 0px;
-  border-radius: 0px;
+  border-radius: 5px;
   box-sizing: content-box;
 }
 .comment-box .msg-body:after {
