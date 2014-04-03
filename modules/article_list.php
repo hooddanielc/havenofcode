@@ -10,7 +10,8 @@
     ];
 
     public static $text = [
-      'article-list' => 'modules/article-list/article-list.mustache'
+      'article-list' => 'modules/article-list/article-list.mustache',
+      'article-list-item' => 'modules/article-list/article-list-item.mustache'
     ];
   }
 ?>

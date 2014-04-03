@@ -20,7 +20,9 @@
     * * * * * * * * * */
     public function get($params) {
       $required_params = [
-        'type'
+        'type',
+        'start',
+        'rows'
       ];
       if(!$this->checkRequiredParams($required_params, $params)) {
         return 'required parameters missing (type)';
@@ -31,9 +33,14 @@
             "SELECT article.publish_date, article.modified_date, article.id, article.title, article.description, article.github_id, users.user_cache FROM article"
             ." INNER JOIN users"
             ." ON article.github_id=users.github_id"
-            ." WHERE article.published=1 ORDER BY article.id DESC"
+            ." WHERE article.published=1 ORDER BY article.id DESC LIMIT ?, ?"
           );
           if($stmt) {
+            $stmt->bind_param(
+              'ii',
+              $params['start'],
+              $params['rows']
+            );
             $result_set = [
               'publish_date' => '',
               'modified_date' => '',
@@ -91,10 +98,15 @@
             "SELECT article.published, article.publish_date, article.modified_date, article.id, article.title, article.description, article.github_id, users.user_cache FROM article"
             ." INNER JOIN users"
             ." ON article.github_id=users.github_id"
-            ." WHERE article.github_id=? ORDER BY article.id DESC"
+            ." WHERE article.github_id=? ORDER BY article.id DESC LIMIT ?, ?"
           );
           if($stmt) {
-            $stmt->bind_param("i", $params['github_id']);
+            $stmt->bind_param(
+              "iii",
+              $params['github_id'],
+              $params['start'],
+              $params['rows']
+            );
             $result_set = [
               'published' => '',
               'publish_date' => '',

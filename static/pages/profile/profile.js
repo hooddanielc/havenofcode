@@ -13,6 +13,7 @@ app.modules.Page = app.modules.PageBaseView.extend({
         'type': 'user'
       })
     });
+    list.render();
   }
 });
 
