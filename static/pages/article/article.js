@@ -125,8 +125,21 @@ app.modules.Comments = Backbone.View.extend({
 
 app.modules.Page = app.modules.PageBaseView.extend({
   renderPage: function() {
-    // render article list
-    this.$elPage.html(app.mustache['article']);
+    // parse youtube video id
+
+    if(this.model.attributes.article.youtube != '') {
+      var video_id = this.model.attributes.article.youtube.split('v=')[1];
+      if(video_id) {
+        var ampersandPosition = video_id.indexOf('&');
+        if(ampersandPosition != -1) {
+          video_id = video_id.substring(0, ampersandPosition);
+        }
+        this.model.attributes.video_id = video_id;
+      }
+    }
+
+    // render article
+    this.$elPage.html(Mustache.render(app.mustache['article'], this.model.attributes));
     // set marked options
     marked.setOptions({
       renderer: new marked.Renderer(),

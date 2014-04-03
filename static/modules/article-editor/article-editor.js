@@ -16,7 +16,6 @@ app.modules.ArticleEditorModel = Backbone.Model.extend({
                 'editor_markdown': o.md,
                 'published': (o.published == '1'),
                 'description': o.description,
-                'github_repo_link': o.repo,
                 'youtube_link': o.youtube,
                 'github_id': o.github_id
               });
@@ -39,7 +38,6 @@ app.modules.ArticleEditorModel = Backbone.Model.extend({
               'title': m.get('title'),
               'description': m.get('description'),
               'md': m.get('editor_markdown'),
-              'repo': m.get('github_repo_link'),
               'youtube': m.get('youtube_link'),
               'published': m.get('published') ? 1 : 0
             }
@@ -68,7 +66,6 @@ app.modules.ArticleEditorModel = Backbone.Model.extend({
               'title': m.get('title'),
               'description': m.get('description'),
               'md': m.get('editor_markdown'),
-              'repo': m.get('github_repo_link'),
               'youtube': m.get('youtube_link'),
               'published': m.get('published') ? 1 : 0
             }

@@ -35,7 +35,6 @@
         'description',
         'md',
         'youtube',
-        'repo',
         'published'
       ];
       // check required parameters
@@ -50,18 +49,17 @@
         // insert
         if($con = $this->getDb()) {
           $stmt = $con->prepare(
-            "INSERT INTO article (publish_date, id, github_id, title, description, md, youtube, repo, published)"
-            ." VALUES (NOW(), NULL, ?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO article (publish_date, id, github_id, title, description, md, youtube, published)"
+            ." VALUES (NOW(), NULL, ?, ?, ?, ?, ?, ?)"
           );
           if($stmt) {
             $stmt->bind_param(
-              "isssssi",
+              "issssi",
               $params->github_id,
               $params->title,
               $params->description,
               $params->md,
               $params->youtube,
-              $params->repo,
               $params->published
             );
             if($stmt->execute()) {
@@ -84,19 +82,17 @@
             ." description=?,"
             ." md=?,"
             ." youtube=?,"
-            ." repo=?,"
             ." published=?,"
             ." modified_date=NOW()"
             ." WHERE id=?"
           );
           if($stmt) {
             $stmt->bind_param(
-              "sssssii",
+              "ssssii",
               $params->title,
               $params->description,
               $params->md,
               $params->youtube,
-              $params->repo,
               $params->published,
               $params->id
             );
@@ -133,7 +129,6 @@
             'description' => '',
             'md' => '',
             'youtube' => '',
-            'repo' => '',
             'published' => '',
             'publish_date' => '',
             'modified_date' => ''
@@ -145,7 +140,6 @@
             $result_set['description'],
             $result_set['md'],
             $result_set['youtube'],
-            $result_set['repo'],
             $result_set['published'],
             $result_set['publish_date'],
             $result_set['modified_date']

@@ -30,6 +30,9 @@ body {
   color: #000;
   z-index: -1;
 }
+.page-base .content-display {
+  margin-top: 52px;
+}
 .page-base .content-display-wrapper {
   width: 100%;
   max-width: 1000px;
