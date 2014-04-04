@@ -39,10 +39,12 @@
     }
 
     public static $css = [
-      'pages/article/article.css'
+      'pages/article/article.css',
+      'main/third-party/prism/styles/default.css'
     ];
 
     public static $js = [
+      'main/third-party/prism/highlight.pack.js',
       'main/third-party/marked.js',
       'main/third-party/moment.js',
       'pages/article/article.js'

@@ -60,13 +60,21 @@
       foreach($classes as &$cls) {
         foreach($cls::$js as &$js_file) {
           if(!in_array($js_file, $taboo)) {
-            $taboo[] = '<script type="text/javascript" src="/static/'.$js_file.'"></script>';
+            if(strpos($js_file, 'http://') !== false) {
+              $taboo[] = '<script type="text/javascript" src="'.$js_file.'"></script>';
+            } else {
+              $taboo[] = '<script type="text/javascript" src="/static/'.$js_file.'"></script>';
+            }
           }
         }
       }
       foreach($this::$js as &$js_file) {
         if(!in_array($js_file, $taboo)) {
-          $taboo[] = '<script type="text/javascript" src="/static/'.$js_file.'"></script>';
+          if(strpos($js_file, 'http://') !== false) {
+            $taboo[] = '<script type="text/javascript" src="'.$js_file.'"></script>';
+          } else {
+            $taboo[] = '<script type="text/javascript" src="/static/'.$js_file.'"></script>';
+          }
         }
       }
       return join("\n", $taboo);

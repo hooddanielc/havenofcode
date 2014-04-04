@@ -17,7 +17,12 @@
     }
 
     public static $js = [
+      'main/third-party/prism/highlight.pack.js',
       'pages/create-article/create-article.js'
+    ];
+
+    public static $css = [
+      'main/third-party/prism/styles/default.css'
     ];
 
     public static $text = [

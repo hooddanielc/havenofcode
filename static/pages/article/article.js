@@ -157,7 +157,10 @@ app.modules.Page = app.modules.PageBaseView.extend({
       pedantic: false,
       sanitize: true,
       smartLists: true,
-      smartypants: false
+      smartypants: false,
+      highlight: function (code) {
+        return hljs.highlightAuto(code).value;
+      }
     });
 
     // render article base

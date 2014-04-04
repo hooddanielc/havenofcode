@@ -34,7 +34,10 @@ app.modules.MarkdownEditorView = Backbone.View.extend({
       pedantic: false,
       sanitize: true,
       smartLists: true,
-      smartypants: false
+      smartypants: false,
+      highlight: function (code) {
+        return hljs.highlightAuto(code).value;
+      }
     });
 
     // update the preview
