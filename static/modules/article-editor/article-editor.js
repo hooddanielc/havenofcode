@@ -85,7 +85,7 @@ app.modules.ArticleEditorModel = Backbone.Model.extend({
   defaults: {
     github_id: app.data.user.id ? app.data.user.id : 0, // page required logged in user
     editor_title: 'Create Article',
-    editor_markdown: 'Hello World\n===========',
+    editor_markdown: '',
     github_repo_link: '',
     youtube_link: '',
   }
