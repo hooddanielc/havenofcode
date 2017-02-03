@@ -22,6 +22,10 @@
       return true;
     }
 
+    protected function session($key, $default=NULL) {
+      return array_key_exists($key, $_SESSION) ? $_SESSION[$key] : $default;
+    }
+
     protected function getDb() {
       return mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     }
@@ -33,8 +37,8 @@
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post));
       $headers[] = 'Accept: application/json';
       $headers[] = 'User-Agent: Haven of Code';
-      if(session('access_token'))
-        $headers[] = 'Authorization: Bearer ' . session('access_token');
+      if($this->session('access_token'))
+        $headers[] = 'Authorization: Bearer ' . $this->session('access_token');
       curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
       $response = curl_exec($ch);
       return json_decode($response);
