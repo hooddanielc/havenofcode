@@ -26,16 +26,32 @@
       return mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     }
 
+    protected function apiRequest($url, $post=FALSE, $headers=array()) {
+      $ch = curl_init($url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+      if($post)
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post));
+      $headers[] = 'Accept: application/json';
+      $headers[] = 'User-Agent: Haven of Code';
+      if(session('access_token'))
+        $headers[] = 'Authorization: Bearer ' . session('access_token');
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+      $response = curl_exec($ch);
+      return json_decode($response);
+    }
+
     protected function isAuthenticatedUser($github_id) {
       session_start();
+
       if(isset($_SESSION['access_token'])) {
-        $token = $_SESSION['access_token']; 
-        ini_set('user_agent','Mozilla/4.0 (compatible; MSIE 6.0)');
-        $result = file_get_contents('https://api.github.com/user?access_token='.$token);
-        $json = json_decode($result);
-        if($github_id == $json->id) {
-          return $json;
+        $apiURLBase = 'https://api.github.com/';
+        $res = $this->apiRequest($apiURLBase . 'user');
+
+        if($github_id == $res->{'id'}) {
+          return $res;
         }
+      } else {
+        die();
       }
       return false;
     }

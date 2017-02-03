@@ -100,11 +100,27 @@
 
   class Page extends Module {
     protected $data = [];
+
+    protected function session($key, $default=NULL) {
+      return array_key_exists($key, $_SESSION) ? $_SESSION[$key] : $default;
+    }
+
+    protected function apiRequest($url, $post=FALSE, $headers=array()) {
+      $ch = curl_init($url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+      if($post)
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post));
+      $headers[] = 'Accept: application/json';
+      $headers[] = 'User-Agent: Haven of Code';
+      if($this->session('access_token'))
+        $headers[] = 'Authorization: Bearer ' . $this->session('access_token');
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+      $response = curl_exec($ch);
+      return json_decode($response);
+    }
+
     protected function isTokenValid($token) {
-      ini_set('user_agent','Mozilla/4.0 (compatible; MSIE 6.0)');
-      $result = file_get_contents('https://api.github.com/user?access_token='.$token);
-      $json = json_decode($result);
-      return $json;
+      return $this->apiRequest('https://api.github.com/user');
     }
 
     function __construct() {

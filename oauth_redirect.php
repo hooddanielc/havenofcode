@@ -2,56 +2,58 @@
   session_start();
   include 'config.php';
   include 'api/methods/user.php';
+  $authorizeURL = 'https://github.com/login/oauth/authorize';
+  $tokenURL = 'https://github.com/login/oauth/access_token';
+  $apiURLBase = 'https://api.github.com/';
 
-  // check to see if our states match
-  if($_GET['state'] == $_SESSION['state']) {
-    // proceed with oauth process and fetch token
-    $url = 'https://github.com/login/oauth/access_token';
-    $data = [
+  // When Github redirects the user back here, there will be a "code" and "state" parameter in the query string
+  if (get('code')) {
+    // Verify the state matches our stored state
+    if(!get('state') || $_SESSION['state'] != get('state')) {
+      header('Location: ' . $_SERVER['PHP_SELF']);
+      die();
+    }
+    // Exchange the auth code for a token
+    $token = apiRequest($tokenURL, array(
       'client_id' => GITHUB_CLIENT,
       'client_secret' => GITHUB_SECRET,
-      'code' => $_GET['code']
-    ];
+      'redirect_uri' => 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'],
+      'state' => $_SESSION['state'],
+      'code' => get('code')
+    ));
+    $_SESSION['access_token'] = $token->access_token;
+    header('Location: ' . $_SERVER['PHP_SELF']);
+  }
 
-    $options = array(
-        'http' => array(
-            'header'  => "Content-type: application/x-www-form-urlencoded\r\nAccept: application/json\r\n",
-            'method'  => 'POST',
-            'content' => http_build_query($data),
-        ),
-    );
-    $context  = stream_context_create($options);
-    $result = file_get_contents($url, false, $context);
-
-    $json = json_decode($result);
-
-    if($json) {
-      if(isset($json->access_token)) {
-        // set the access token as session
-        // and redirect to home page
-        $_SESSION['access_token'] = $json->access_token;
-
-        // get some user data
-        ini_set('user_agent','Mozilla/4.0 (compatible; MSIE 6.0)');
-        $result = file_get_contents('https://api.github.com/user?access_token='.$json->access_token);
-        $json = json_decode($result);
-        $github_id = $json->id;
-
-        // create new user if not exists
-        $user = new User();
-        $user->post(['github_id' => $github_id, 'user_cache' => $result]);
-        header("Location: index.php");
-      } else {
-        // oauth is broken
-        echo ':-(';
-      }
-    } else {
-      // json_decode didn't work
-      echo ':-(';
-    }
+  if(session('access_token')) {
+    $res = apiRequest($apiURLBase . 'user');
+    $user = new User();
+    $user->post(['github_id' => $res->{'id'}, 'user_cache' => json_encode($res)]);    
+    header("Location: index.php");
   } else {
-    // this line should redirect
-    // to 404 not found page
-    echo ':-(';
+    echo '<h3>Not logged in</h3>';
+    echo '<p><a href="?action=login">Log In</a></p>';
+  }
+
+  function apiRequest($url, $post=FALSE, $headers=array()) {
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    if($post)
+      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post));
+    $headers[] = 'Accept: application/json';
+    $headers[] = 'User-Agent: Haven of Code';
+    if(session('access_token'))
+      $headers[] = 'Authorization: Bearer ' . session('access_token');
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    $response = curl_exec($ch);
+    return json_decode($response);
+  }
+
+  function get($key, $default=NULL) {
+    return array_key_exists($key, $_GET) ? $_GET[$key] : $default;
+  }
+
+  function session($key, $default=NULL) {
+    return array_key_exists($key, $_SESSION) ? $_SESSION[$key] : $default;
   }
 ?>
