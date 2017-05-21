@@ -79,4 +79,4 @@ ENV HOC_GITHUB_SECRET xxx
 
 EXPOSE 80
 
-CMD /bin/bash -c "apachectl -X && /bin/zsh"
+CMD apachectl start -X
