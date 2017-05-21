@@ -26,6 +26,7 @@ RUN echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN pacman --noconfirm -S php-apache
 RUN pacman --noconfirm -S nano
 RUN mkdir -p /srv/http
+RUN echo "ServerName www.havenofcode.com:80" >> /etc/httpd/conf/httpd.conf
 RUN sed -i.bak '/ServerAdmin/d' /etc/httpd/conf/httpd.conf
 RUN echo ServerAdmin hood.danielc@gmail.com >> /etc/httpd/conf/httpd.conf
 RUN sed -i.bak '/mod_mpm_event/d' /etc/httpd/conf/httpd.conf
@@ -79,4 +80,4 @@ ENV HOC_GITHUB_SECRET xxx
 
 EXPOSE 80
 
-CMD apachectl start -X
+CMD apachectl start && tail -f /var/log/httpd/access_log
