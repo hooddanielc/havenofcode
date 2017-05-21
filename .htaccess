@@ -1,0 +1,9 @@
+<IfModule mod_security.c>
+# Turn the filtering engine On or Off
+SecFilterEngine Off
+</IfModule>
+#Force www:
+RewriteEngine on
+RewriteCond %{HTTP_HOST} ^havenofcode.com [NC]
+RewriteRule ^(.*)$ http://www.havenofcode.com/$1 [L,R=301,NC]
+DirectoryIndex index.php
