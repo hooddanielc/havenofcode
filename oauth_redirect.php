@@ -6,6 +6,11 @@
   $tokenURL = 'https://github.com/login/oauth/access_token';
   $apiURLBase = 'https://api.github.com/';
 
+  if (get('error')) {
+    header('Location: login_error.php?'.explode('?', $_SERVER['REQUEST_URI'])[1]);
+    die();
+  }
+
   // When Github redirects the user back here, there will be a "code" and "state" parameter in the query string
   if (get('code')) {
     // Verify the state matches our stored state
