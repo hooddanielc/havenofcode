@@ -65,9 +65,6 @@ ADD . /srv/http/
 ADD ./config/havenofcode.conf /etc/httpd/conf/extra/havenofcode.conf
 RUN echo 'Include conf/extra/havenofcode.conf' >> /etc/httpd/conf/httpd.conf
 
-# postgres creds
-ENV HOC_POSTGRES_HOST havenofcode.cem5dcxo5hdt.us-west-2.rds.amazonaws.com
-
 # mysql creds
 ENV HOC_MYSQL_HOST xxx
 ENV HOC_MYSQL_USER xxx
@@ -80,4 +77,4 @@ ENV HOC_GITHUB_SECRET xxx
 
 EXPOSE 80
 
-CMD apachectl start && tail -f /var/log/httpd/access_log
+CMD apachectl start -DFOREGROUND
