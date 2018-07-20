@@ -7,7 +7,7 @@
   include 'havenofcode.php';
   include 'modules/page_base.php';
   include 'modules/article_list.php';
-http://havenofcode.com/login_error.php?error=redirect_uri_mismatch&error_description=The+redirect_uri+MUST+match+the+registered+callback+URL+for+this+application.&error_uri=https%3A%2F%2Fdeveloper.github.com%2Fv3%2Foauth%2F%23redirect-uri-mismatch&state=MTg1MDI2NTcw
+
   // testing page
   class MyPage extends Page {
     function __construct() {

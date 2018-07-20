@@ -22,7 +22,7 @@
     $token = apiRequest($tokenURL, array(
       'client_id' => GITHUB_CLIENT,
       'client_secret' => GITHUB_SECRET,
-      'redirect_uri' => 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'],
+      'redirect_uri' => 'http://www.havenofcode.com/oauth_redirect.php',
       'state' => $_SESSION['state'],
       'code' => get('code')
     ));
