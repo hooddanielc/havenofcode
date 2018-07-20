@@ -1,12 +1,18 @@
 FROM dhoodlum/arch-base-devel
 
-RUN pacman --noconfirm -S apache
-RUN pacman --noconfirm -S zsh
-RUN pacman --noconfirm -S php
-RUN pacman --noconfirm -S sudo
-RUN pacman --noconfirm -S wget
-RUN pacman --noconfirm -S git
-RUN pacman --noconfirm -S postgresql
+RUN pacman --noconfirm -Syyu
+
+RUN pacman --noconfirm -S apache \
+  zsh \
+  php \
+  sudo \
+  wget \
+  git \
+  postgresql \
+  php-apache \
+  nano \
+  phppgadmin \
+  phpmyadmin
 
 RUN apachectl restart
 
@@ -23,8 +29,6 @@ RUN echo MAKEFLAGS=\"-j$(grep -c ^processor /proc/cpuinfo)\" >> /etc/makepkg.con
 RUN echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # configure apache
-RUN pacman --noconfirm -S php-apache
-RUN pacman --noconfirm -S nano
 RUN mkdir -p /srv/http
 RUN echo "ServerName www.havenofcode.com:80" >> /etc/httpd/conf/httpd.conf
 RUN sed -i.bak '/ServerAdmin/d' /etc/httpd/conf/httpd.conf
@@ -37,8 +41,6 @@ RUN apachectl restart
 RUN sed -i.bak '/mysqli.so/d' /etc/php/php.ini
 RUN echo 'extension=mysqli.so' >> /etc/php/php.ini
 
-# install phppgadmin
-RUN pacman --noconfirm -S phppgadmin
 RUN echo "extension=pgsql.so" >> /etc/php/php.ini
 RUN echo "open_basedir = /srv/http/:/home/:/tmp/:/usr/share/pear/:/usr/share/webapps/:/etc/webapps" >> /etc/php/php.ini
 ADD ./config/phppgadmin.conf /etc/httpd/conf/extra/phppgadmin.conf
@@ -50,7 +52,6 @@ RUN echo "?>" >> /etc/webapps/phppgadmin/config.inc.php
 RUN apachectl restart
 
 # install phpmyadmin
-RUN pacman --noconfirm -S phpmyadmin
 ADD ./config/phpmyadmin.conf /etc/httpd/conf/extra/phpmyadmin.conf
 RUN echo 'Include conf/extra/phpmyadmin.conf' >> /etc/httpd/conf/httpd.conf
 RUN sed -i.bak '/host/d' /etc/webapps/phpmyadmin/config.inc.php
