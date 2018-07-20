@@ -28,54 +28,30 @@ RUN echo MAKEFLAGS=\"-j$(grep -c ^processor /proc/cpuinfo)\" >> /etc/makepkg.con
 # setup sudo for developer
 RUN echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# configure apache
-RUN mkdir -p /srv/http
-RUN echo "ServerName www.havenofcode.com:80" >> /etc/httpd/conf/httpd.conf
-RUN sed -i.bak '/ServerAdmin/d' /etc/httpd/conf/httpd.conf
-RUN echo ServerAdmin hood.danielc@gmail.com >> /etc/httpd/conf/httpd.conf
-RUN sed -i.bak '/mod_mpm_event/d' /etc/httpd/conf/httpd.conf
-RUN echo "LoadModule mpm_prefork_module modules/mod_mpm_prefork.so" >> /etc/httpd/conf/httpd.conf
-RUN echo "LoadModule php7_module modules/libphp7.so" >> /etc/httpd/conf/httpd.conf
-RUN echo "AddHandler php7-script php" >> /etc/httpd/conf/httpd.conf
-RUN apachectl restart
-RUN sed -i.bak '/mysqli.so/d' /etc/php/php.ini
-RUN echo 'extension=mysqli.so' >> /etc/php/php.ini
-
-RUN echo "extension=pgsql.so" >> /etc/php/php.ini
-RUN echo "open_basedir = /srv/http/:/home/:/tmp/:/usr/share/pear/:/usr/share/webapps/:/etc/webapps" >> /etc/php/php.ini
-ADD ./config/phppgadmin.conf /etc/httpd/conf/extra/phppgadmin.conf
-RUN echo 'Include conf/extra/phppgadmin.conf' >> /etc/httpd/conf/httpd.conf
-RUN sed -i.bak '/?>/d' /etc/webapps/phppgadmin/config.inc.php
-RUN sed -i.bak '/host/d' /etc/webapps/phppgadmin/config.inc.php
-RUN echo "\$conf['servers'][0]['host'] = \$_ENV['HOC_POSTGRES_HOST'];" >> /etc/webapps/phppgadmin/config.inc.php
-RUN echo "?>" >> /etc/webapps/phppgadmin/config.inc.php
-RUN apachectl restart
-
-# install phpmyadmin
-ADD ./config/phpmyadmin.conf /etc/httpd/conf/extra/phpmyadmin.conf
-RUN echo 'Include conf/extra/phpmyadmin.conf' >> /etc/httpd/conf/httpd.conf
-RUN sed -i.bak '/host/d' /etc/webapps/phpmyadmin/config.inc.php
-RUN echo "\$cfg['Servers'][\$i]['host'] = \$_ENV['HOC_MYSQL_HOST'];" >> /etc/webapps/phpmyadmin/config.inc.php
-
-# allow environment variables
-RUN sed -i.bak "/variables_order\s\=\s/d" /etc/php/php.ini
-RUN echo "variables_order = EGPCS" >> /etc/php/php.ini
+# add configuration
+ADD ./config/httpd/httpd.conf /etc/httpd/conf/httpd.conf
+ADD ./config/httpd/extra/havenofcode.conf /etc/httpd/conf/extra/havenofcode.conf
+ADD ./config/httpd/extra/phpmyadmin.conf /etc/httpd/conf/extra/phpmyadmin.conf
+ADD ./config/httpd/extra/phppgadmin.conf /etc/httpd/conf/extra/phppgadmin.conf
+ADD ./config/php/php.ini /etc/php/php.ini
+ADD ./config/webapps/phpmyadmin/config.inc.php /etc/webapps/phpmyadmin/config.inc.php
+ADD ./config/webapps/phppgadmin/config.inc.php /etc/webapps/phppgadmin/config.inc.php
 
 # install the source code
+RUN mkdir -p /srv/http
 ADD . /srv/http/
-ADD ./config/havenofcode.conf /etc/httpd/conf/extra/havenofcode.conf
-RUN echo 'Include conf/extra/havenofcode.conf' >> /etc/httpd/conf/httpd.conf
 
-# mysql creds
+# environment
 ENV HOC_MYSQL_HOST xxx
 ENV HOC_MYSQL_USER xxx
 ENV HOC_MYSQL_PASS xxx
 ENV HOC_MYSQL_NAME xxx
-
-# git app id
 ENV HOC_GITHUB_CLIENT xxx
 ENV HOC_GITHUB_SECRET xxx
+ENV HOC_HTTP_PORT 8081
 
+EXPOSE 8081
 EXPOSE 80
 
-CMD apachectl start -DFOREGROUND
+ENTRYPOINT ["/srv/http/entrypoint.sh"]
+CMD ["apachectl", "start", "-DFOREGROUND"]
