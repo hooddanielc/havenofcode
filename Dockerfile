@@ -51,7 +51,6 @@ ENV HOC_GITHUB_SECRET xxx
 ENV HOC_HTTP_PORT 8081
 
 EXPOSE 8081
-EXPOSE 80
 
 ENTRYPOINT ["/srv/http/entrypoint.sh"]
 CMD ["apachectl", "start", "-DFOREGROUND"]
